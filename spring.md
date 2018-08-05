@@ -279,15 +279,272 @@ getBean中是xml文件的id,注意不要写错
 
    }
 
+   }
+
+   
+
+   在整个web系统来说，web层中，structs接管jsp/action/表单，主要体现出mvc的数据输入、数据处理、数据显示分离
+
+   
+
+   mvc 模式中：view：jsp 
+
+   ​                        controller:action.java
+
+   ​                         model(业务层+dao+持久层（主要解决关系模型和对象模型的阻抗）)
+
+   
+
+   配置各种bean:  web层 action
+
+   ​                            业务层 service/domain/dao
+
+   ​                            持久层：数据源
+
+   
+
+   ## 理解IOC##
+
+   spring开发提倡接口编程，配合di技术，可以得到层与层的解耦
+
+   举例说明
+
+   体验spring的di配合接口编程，完成一个字母大小写的案例
+
+   1. 创建一个接口 ChangeLetter
+   2. 两个类实现接口
+   3. 把对象配置到spring容器中
+   4. 使用
+
+   
+
+   applicationConetext.xml文件的名字不一定叫这名
+
+   还有常见的叫法叫做beans.xml
+
+   如果xml文件不是在src目录下的话，在包下的话，路径名需要将点.转换为斜杆/
+
+   在xml文件配置bean的时候属性 class不能为接口，必须为类
+
+   
+
+   使用spring   action.java 和service层之间有接口
+
+   
+
+   继承同一接口的类使用相同的id ,在实际的工程中使用多选一
+
+   
+
+   好处：业务层的内容没有发生变化，只需要改变xml文件
+
+   使用接口来访问bean：ChangeLetter changeLetter=（ChangeLetter）ac.getBean("changeLette");
+
+   
+
+   ## Bean 工厂和ApplicaitonContext##
+
+   bean工厂：最简单的容器，提供基础的依赖注入支持，创建各种类型的Bean
+
+   应用上下文(ApplicationContext):建立在工厂的基础之上，提供系统架构服务
+
+   
+
+   从ApplicationContext容器中获取bean 和bean工厂获取bean的区别：
+
+   当加载配置文件的时候，在应用上下文容中bean已经被实例化，已被创建了
+
+   
+
+   **bean工厂的介绍**
+
+   工厂设计模式，创建分发各种bean,配置好他们之间的协作关系，参与bean的生命周期
+
+   Beanfactory factory=new XmlBeanFactory(new ClassPathResource("applicationContext.xml"));
+
+   bean工厂只把bean的定义信息加载进来，getBean用到的时候才实例化
+
+   
+
+   Bean作用域
+
+   | 作用域          | 描述                                                         |
+   | --------------- | ------------------------------------------------------------ |
+   | singleton       | 在Spring Ioc容器中一个bean定义对应一个对象实例               |
+   | prototype       | 一个bean定义对应多个对象实例                                 |
+   | request         | 在一次HTTP请求中，一个bean定义对应一个实例，即每次HTTP请求都会有各自的bean实例，他们依据某个bean定义创建而成，该作用域仅在基于web的Spring ApplicationContext情形下有效 |
+   | session         | 在一个HTTP Session中，一个bean定义对应一个实例，该作用域仅在基于web的Spring Application情形下有效 |
+   | global  session | 在一个全局的HTTP Session中，一个bean定义对应一个实例，当容器没关闭情况bean的实例就存在 |
+
+   
+
+   后三个配置只有在web开发中才有意义
+
+   
+
+   具体案例：
+
+   移动设备的话使用bean工厂，不能占用太多的内存
+
+   大部分应用系统使用应用上下文
+
+   
+
+   结论是：如果使用ApplicationContext,则配置的bean如果是singleton不管你用不用，都被实例化（好处就是预先加载，缺点就是耗内存）
+
+   如果是BeanFactory,则当你实例化该对象时候，配置的bean不会被马上实例化，当你使用的时候才被实例化，节约内存，缺点就是速度有点慢
+
+   规定：一般没有特殊要求，应当使用ApplicationContext完成
+
+   
+
+   singleton:单例，默认值
+
+   prototype:原型
+
+   request:一次请求有效
+
+   session：session级有效
+
+   global-session:在web中spring容器ApplicationContext一样
+
+   
+
+   <bean id ="student"  scope="singleton"></bean>
+
+   Student s1=(Student)  ac.getBean("student");
+
+   Student s2=(Student)   ac.getBean("student");
+
+   System.out.println(s1+" "+s2);
+
+   可以得到两个对象的内存地址相同
+
+   
+
+   <bean id ="student"  scope="prototype"></bean>
+
+   可以得到两个对象的内存地址不相同，每次获取都会得到全新的对象
+
+   
+
+   singleton和global-session是等价的，global-session 是web开发中的singleton,只要spring容器没有关闭，对象就存在
+
+   
+
+   使用应用上下文：
+
+   三种经常用到的实现：
+
+   1. ClassPathXmlApplicationContext:从类路径中加载
+   2. FileSystemXmlApplicationContext:从文件系统中加载，需要写全文件的路径，路径中双斜杠\\,需要使用绝对路径，不能使用相对路径
+   3. XmlWebApplicationContext：从web系统中加载，当tomcat启动的时候后才加载。
+
    
 
    
+
+   ## bean的生命周期##
+
+   1. 实例化（当我们的程序加载beans.xml文件），把我们的bean（前提是scope=singleton）实例到内存中，默认情况下是找无参的构造方法
+
+   如果有多个构造方法可以在配置文件中指定构造方法 
+
+   2. 设置属性     注入属性 前提是有方法对应 setName才能ok
+
+   3. 调用BeanNameAware的setBeanName（）方法
+
+      eg:
+
+      public class personService implements BeanNameAware
+
+      {
+
+      ​     //该方法可以给arg0表示正在被实例化得bean
+
+      ​      public void setBeanName(String arg0)
+
+      ​      {
+
+      
+
+      
+
+      ​         }
+
+      }
+
+   
+
+   4.如果有实现bean工厂接口，则可以获取bean工厂，调用BeanFactoryAware 的setBeanFactory()方法 ,该方法可以传递beanFactory,arg0就是bean工厂
+
+   public void setBeanFacotry(BeanFactory arg0) throws BeansException
+
+   {
 
    
 
    }
 
+   5.该方法传递上下文
+
+   如果实现ApplicationContextAware 中的setApplicationContext方法，该方法可以得到ApplicationContext
+
    
+
+   6.如果一个bean与一个后置处理器相关联
+
+   调用BeanPostProcesser  bean的后置处理器
+
+   创建自己的bean后置处理器 MyBeanPostProcessor
+
+   public class MyBeanPostProcessor implements BeanPostProcessor
+
+   {
+
+   }
+
+   需要实现两种方法  postProcessAfterInitialization
+
+   ​                                postProcessBeforeInitialization
+
+   
+
+   在beans.xml 文件中进行配置后置处理器，有点类似于过滤器
+
+   给bean配置id， class
+
+   
+
+   有两个方法被调用：顺序是：before（） after（） 
+
+   **中间还有可能其他的方法** 
+
+   理解一下后置处理器：
+
+   每当实例化一个bean后如果配置了后置处理器，那么每次都会调用before（）、after（）
+
+   
+
+   需求：
+
+   1. 记录每个对象被实例化的时间
+   2. 过滤每个调用对象的ip
+   3. 给所有对象添加属性，或者函数=》aop() 面向切面编程,针对所有对象编程。
+
+   
+
+   相当于有一道门对所有对象进行编程，这道门就是MyBeanProcessor.对一波对象编程，是门产生作用的是xml文件。
+
+   
+
+   
+
+   
+
+   如果实现了InitializingBean的afterPropertieSet()方法：则在后置处理器的before方法后面调用该方法
+
+   如果调用定制的初始化方法则在InitializingBean中的方法使用后使用
 
    
 
