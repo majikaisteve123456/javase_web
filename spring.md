@@ -546,6 +546,58 @@ getBean中是xml文件的id,注意不要写错
 
    如果调用定制的初始化方法则在InitializingBean中的方法使用后使用
 
+   定制的初始化方法，需要在配置文件中使用<bean init-method="init "/>
+
+   在类中写上函数public  void init()
+
+   
+
+   容器关闭，bean就销毁
+
+   可以定制销毁方法，实现接口DisposableBean的destroy（）方法
+
+   在这里可以关闭数据链接链接，socket文件流，释放该bean的资源
+
+   
+
+   可以不实现DisposableBean的接口,可以定制销毁方法
+
+   <bean destroy-method="destroy"/>
+
+   在类中写该方法
+
+   调用定制的销毁方法
+
+   
+
+   **小结**：实际开发中往往没有用到这么多的过程
+
+   
+
+   ##bean工厂获取 bean的生命周期
+
+   相比与使用了应用上下文得到的bean：
+
+   不是一样的，生命周期会简单一些
+
+   
+
+   
+
+   ## 装配Bean##
+
+   上下文配置文件的根元素<beans></beans>
+
+   对bean的最基本的配置是id和全称类名
+
+   id是不能够重复
+
+   
+
+   
+
+   
+
    
 
    
