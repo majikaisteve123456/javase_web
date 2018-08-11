@@ -478,7 +478,137 @@ SpringBoot会自动配置，但是如果我们不需要SpringBoot自动配置，
 
 ## 全局配置文件##
 
-Spring
+Spring Boot 项目使用一个全局配置文件application.properties,在resource下
+
+1. 修改tomcat的端口为8088
+
+   server.port=8088
+
+   2.修改进入DispatcherServlet的规则为*.html
+
+   server.servlet-path=*.html
+
+
+
+## SpringBoot的自动配置##
+
+Spring Boot 在进行SpringApplication对象实例化时会加载META-INF/spring.factories文件，将配置文件中的配置载入到Spring容器中
+
+
+
+## Spring Boot的web 开发##
+
+条件注解表明类初始化的条件
+
+静态资源放在resource目录下
+
+在全局配置文件中加上
+
+spring.resource.static-location=classpath:/public/
+
+指定静态资源的访问路径
+
+
+
+**自定义消息转化器**
+
+消息转化器@RequestBody 、@ResponseBody注解可以将输入解析成json,将输出解析成Json,li浏览器和服务器通过原始文本进行通信，这里是消息转换器发挥着作用
+
+只需要在@Configuration的类中添加消息转化器的@bean加入到Spring容器
+
+@Bean
+
+public StringHttpMessageConverter stringHttpMessageConverter()
+
+{
+
+​    StringHttpMessageConverter converter=new      StringHttpMessageConverter(Charset.forName("UTF-8"))；
+
+return converter；
+
+}
+
+
+
+springboot自动配置的utf-8的消息转换器，可以不用，如果自定义，则spring boot自定义的对象将不会实例化
+
+所以在view层可以显示中文，没有乱码
+
+
+
+**添加拦截器**
+
+https://blog.csdn.net/htf2620032/article/details/79305208
+
+
+
+## spring boot 项目
+
+Spring Boot 没有web.xml
+
+数据源写在*Application类中
+
+设置Mybatis和Spring Boot整合
+
+官方提供整合包
+
+使用mybatis-spring整合方式
+
+
+
+采用第二种方便后续修改
+
+创建一个配置类 MyBatisConfig
+
+
+
+@Configuration
+
+public class MyBatisConfig
+
+{
+
+@AutoWired
+
+   private  DataSource dataSource;
+
+
+
+@Bean
+
+public SqlSessionFactoryBean sqlSessionFactoryBean()
+
+{
+
+​      SqlSessionFactoryBean sqlSessionFactoryBean=new  SqlSessionFactoryBean();
+
+​     sqlSessionFactoryBean.setDataSource(dataSource);
+
+​     return sqlSessionFactoryBean;
+
+}
+
+}
+
+
+
+创建Mapper接口的扫描类MapperScannerConfig
+
+@Configuration
+
+@AutoConfigurationAfter(MyBatisConfig.class)//保证MyBatisConfig实例化之后再实例化该类
+
+public class MapperScannerConfi{
+
+
+
+
+
+}
+
+
+
+
 
 
 
