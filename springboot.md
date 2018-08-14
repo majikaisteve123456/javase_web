@@ -332,7 +332,7 @@ public class HelloApplication {
 
 启动应用：
 
-1. 直接run java Applica同
+1. 直接run java Application
 2. 通过Spring Boot的Maven 插件
 
 
@@ -602,15 +602,69 @@ public class MapperScannerConfi{
 
 
 
-
-
 }
 
 
 
+##Spring Boot 事务管理
+
+在Spring Boot推荐使用@Transactional 注释来申明事务
+
+首先需要导入依赖
+
+spring-boot-starter-jdbc
 
 
 
+<dependency> 
+
+<groupId>org.springframework.boot</groupId> 
+
+<artifactId>spring-boot-starter-jdbc</artifactId>
+
+ </dependency> 
+
+
+
+当引入jdbc依赖之后，在需要的service层与数据库相关的类使用注解@Transactional
+
+@Transactional 不仅可以注解在方法上，也可以注解在类上，当注解在类上的时候意味着该类中所有public方法都是开启事务的，如果类级别和方法级别同时使用@Transactional注解，则使用在类级别上的注解会重载方法级别的注解
+
+
+
+## Spring Boot 整合redis##
+
+需要编写一个配置类，需要使用一个redis.properties文件
+
+需要配置一系列参数，以及bean的设置
+
+
+
+##Spring Boot 整合HttpClient
+
+HttpClient 是多例对象
+
+使用注释@Scope（“prototype”）
+
+
+
+## SpringMVC的配置##
+
+在全局配置文件中
+
+spring.mvc.view.prefix=/WEB-INF/views/
+
+spring.mvc.view.suffix=.jsp
+
+
+
+##Spirng Boot项目发布到独立的Tomcat##
+
+平时采用的是内嵌的tomcat进行开发，到了生成环境，需要到独立的tomcat容器中运行
+
+工程的打包方式为war
+
+将spring-boot-starter-tomcat的范围设置为provided（在打包的时候）
 
 
 
